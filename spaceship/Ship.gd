@@ -4,7 +4,7 @@ extends RigidBody
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	pass
 
 var speed = 4
 var mouseSensitivity = 0.01
@@ -18,37 +18,51 @@ var stick_amount = 10
 var mouse_sensitivity = 1
 
 var direction = Vector3()
-func _input(event):
-	if event is InputEventMouseMotion:
 
-		if event is InputEventMouseMotion:
-			rotate_y(-event.relative.x*0.01)
-			rotate_z(-event.relative.y*0.01)
 
-	direction = Vector3()
-	direction.z = -Input.get_action_strength("move_forward") + Input.get_action_strength("move_backward")
-	direction.x = -Input.get_action_strength("move_left") + Input.get_action_strength("move_right")
-	direction = direction.normalized().rotated(Vector3.UP, rotation.y)
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	var velocity = Vector3()  # The player's movement vector.
+func _physics_process(delta):
+	#ROTATION
+	var torque = Vector3()
+	if Input.is_action_pressed("yaw-"):
+		torque.y += 0.01
+	if Input.is_action_pressed("yaw+"):
+		torque.y -= 0.01
+	if Input.is_action_pressed("roll-"):
+		torque.x -= 0.01
+	if Input.is_action_pressed("roll+"):
+		torque.x += 0.01
+	if Input.is_action_pressed("pitch-"):
+		torque.z -= 0.01
+	if Input.is_action_pressed("pitch+"):
+		torque.z += 0.01
+	
+#	torque = torque.normalized().rotated(Vector3.UP, rotation.y)
 
-	if Input.is_action_pressed("ui_right"):
-		velocity.z += 1
-	if Input.is_action_pressed("ui_left"):
+	add_torque(torque*10)
+	
+	#MOVEMENT
+	var velocity = Vector3()
+	if Input.is_action_pressed("moveLeft"):
 		velocity.z -= 1
-	if Input.is_action_pressed("ui_down"):
+	if Input.is_action_pressed("moveRight"):
+		velocity.z += 1
+	if Input.is_action_pressed("moveBack"):
 		velocity.x -= 1
-	if Input.is_action_pressed("ui_up"):
+	if Input.is_action_pressed("moveForward"):
 		velocity.x += 1
+	if Input.is_action_pressed("moveDown"):
+		velocity.y -= 1
+	if Input.is_action_pressed("moveUp"):
+		velocity.y += 1
 	if velocity.length() > 0:
 		velocity = velocity.normalized() * speed
 	velocity*=speed
 	
-	velocity = velocity.linear_interpolate(direction * speed, acceleration * delta)
-	velocity = velocity.normalized().rotated(Vector3.UP, rotation.y)
 
-#	apply_impulse(velocity, Vector3.UP)
+	velocity = velocity.normalized().rotated(Vector3.UP, rotation.y).rotated(Vector3.RIGHT, rotation.x).rotated(Vector3.BACK, rotation.z)
+
+
 	apply_central_impulse(velocity)
 

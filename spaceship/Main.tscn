@@ -20,3 +20,4 @@ shape = SubResource( 1 )
 
 [node name="Camera" type="Camera" parent="Ship"]
 transform = Transform( -1.62921e-07, 0, -1, 0, 1, 0, 1, 0, -1.62921e-07, 1, 0, 0 )
+fov = 100.0
